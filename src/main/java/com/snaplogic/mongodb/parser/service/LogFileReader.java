@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snaplogic.mongodb.parser.dtos.LogEntry;
 import com.snaplogic.mongodb.parser.exceptions.MongoDbLogParserException;
 import com.snaplogic.mongodb.parser.repos.LogEntriesRepository;
+import com.snaplogic.mongodb.parser.utils.DateUtils;
 import com.snaplogic.mongodb.parser.utils.LogEntryHelper;
 
 /**
@@ -55,6 +57,7 @@ public class LogFileReader {
 		int counter = 0;
 		
 		int lineCount = 0;
+		int entryCount = 0;
 		
 		File logFile = getFile(cli, option);
 				
@@ -77,25 +80,38 @@ public class LogFileReader {
 								logEntry.setMachine(machine);
 								logEntry.setEnv(env);
 								logEntry.setNode(node);
-								logEntry.setId(LogEntryHelper.generateId(logEntry.getLogEntryDate(), env, node, machine));
-								logEntries.add(logEntry);
+								logEntry.setId(LogEntryHelper.generateId(logEntry));
+								
+								//logEntries.add(logEntry);
+								// Note, I tried to do the insert using an array list, but for some reason if one fails
+								// they all fail.
+								try
+								{
+									logEntriesRepo.insert(logEntry);
+									entryCount++;
+									counter++;
+								}
+								catch(Exception e)
+								{
+									logger.warn("Failed to insert logEntry: \n" + logEntry.toString("	") + "\n", e);
+								}
 							}
 							else
 								logger.warn("We are not going to save LogEntry:\n" + logEntry.toString("	"));
 						}
-						if(logEntries.size() == 10)
-						{
-							try
-							{
-								savedLogEntries = logEntriesRepo.insert(logEntries);
-								counter = counter + savedLogEntries.size();
-								logEntries = new ArrayList<LogEntry>();
-							}
-							catch(Exception e)
-							{
-								logger.warn("Issue while doing bulk inserts", e);
-							}
-						}
+//						if(logEntries.size() == 10)
+//						{
+//							try
+//							{
+//								savedLogEntries = logEntriesRepo.insert(logEntries);
+//								counter = counter + savedLogEntries.size();
+//								logEntries = new ArrayList<LogEntry>();
+//							}
+//							catch(Exception e)
+//							{
+//								logger.warn("Issue while doing bulk inserts", e);
+//							}
+//						}
 					}
 					catch(Exception e)
 					{
@@ -107,18 +123,18 @@ public class LogFileReader {
 					lineCount++;
 				}
 				//Don't forget to save the last entries.
-				if(logEntries.size() > 0)
-				{
-					try
-					{
-						savedLogEntries = logEntriesRepo.insert(logEntries);
-						counter = counter + logEntries.size();
-					}
-					catch(Exception e)
-					{
-						logger.warn("Issue while doing bulk inserts", e);
-					}
-				}
+//				if(logEntries.size() > 0)
+//				{
+//					try
+//					{
+//						savedLogEntries = logEntriesRepo.insert(logEntries);
+//						counter = counter + logEntries.size();
+//					}
+//					catch(Exception e)
+//					{
+//						logger.warn("Issue while doing bulk inserts", e);
+//					}
+//				}
 			}
 		} 
 		catch (IOException e) 
@@ -128,7 +144,9 @@ public class LogFileReader {
 		}
 		finally
 		{
-			System.out.println("\nWe have just added " + counter + " log entries to the database.");
+			System.out.println("We processed " + lineCount + " line entries into " + entryCount + " LogEntries!");
+			System.out.println("\nWe saved " + counter + " log entries to the database.");
+
 			if(logger.isInfoEnabled())
 				logger.info("We have just added " + counter + " log entries to the database.");
 		}

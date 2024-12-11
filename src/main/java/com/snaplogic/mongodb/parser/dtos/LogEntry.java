@@ -39,44 +39,46 @@ public class LogEntry {
 
 	@JsonProperty("msg")
 	private String msg;
+	
+	private Integer msgId;
 
 	private String node;
 
 	private Integer nreturned = Integer.valueOf(0);
-	
+
 	private Integer numYelds = Integer.valueOf(0);
 
 	@JsonProperty("c")
 	private String operation;
-
+	
 	private String planCacheKey;
-	
-    private Integer planningTimeMicros = Integer.valueOf(0);
-	
-    private String planSummary;
 
+	private Integer planningTimeMicros = Integer.valueOf(0);
+
+	private String planSummary;
+	
     private String queryHash;
+	
+    private String readPreference;
+
+    private String remote;
     
-	private String readPreference;
-
-	private String remote;
-
 	private String replanReason;
 
 	private Integer reslen = Integer.valueOf(0);
-	
+
 	public String getCmd() {
 		return cmd;
 	}
-	
+
 	public String getCollection() {
 		return collection;
 	}
-
+	
 	public Integer getDocsExamined() {
 		return docsExamined;
 	}
-
+	
 	public Integer getDuration() {
 		return duration;
 	}
@@ -84,7 +86,7 @@ public class LogEntry {
 	public String getEnv() {
 		return env;
 	}
-	
+
 	public String getErrMsg() {
 		if(errMsg != null)
 			return errMsg;
@@ -95,31 +97,35 @@ public class LogEntry {
 	public String getId() {
 		return id;
 	}
-
+	
 	public int getKeysExamined() {
 		return keysExamined;
 	}
-	
+
 	public Date getLogEntryDate() {
 		return logEntryDate;
 	}
-    
-    public String getMachine() {
+
+	public String getMachine() {
 		return machine;
 	}
-
+	
 	public String getMsg() {
 		return msg;
+	}
+    
+    public Integer getMsgId() {
+		return msgId;
 	}
 
 	public String getNode() {
 		return node;
 	}
-	
+
 	public Integer getNreturned() {
 		return nreturned;
 	}
-
+	
 	public Integer getNumYelds() {
 		return numYelds;
 	}
@@ -131,7 +137,7 @@ public class LogEntry {
 	public String getPlanCacheKey() {
 		return planCacheKey;
 	}
-	
+
 	public Integer getPlanningTimeMicros() {
 		return planningTimeMicros;
 	}
@@ -139,7 +145,7 @@ public class LogEntry {
 	public String getPlanSummary() {
 		return planSummary;
 	}
-
+	
 	public String getQueryHash() {
 		return queryHash;
 	}
@@ -184,7 +190,7 @@ public class LogEntry {
 	public void setCollection(String collection) {
 		this.collection = collection;
 	}
-	
+
 	public void setDocsExamined(Integer docsExamined) {
 		this.docsExamined = docsExamined;
 	}
@@ -192,7 +198,7 @@ public class LogEntry {
 	public void setDuration(Integer duration) {
 		this.duration = duration;
 	}
-
+	
 	public void setEnv(String env) {
 		this.env = env;
 	}
@@ -216,8 +222,12 @@ public class LogEntry {
 	public void setMachine(String machine) {
 		this.machine = machine;
 	}
+
 	public void setMsg(String msg) {
 		this.msg = msg;
+	}
+	public void setMsgId(Integer msgId) {
+		this.msgId = msgId;
 	}
     
 	public void setNode(String node) {
@@ -321,6 +331,13 @@ public class LogEntry {
 		
 		return (sb.toString());
 	}
+	
+	@JsonProperty("id")
+	private void parseMsgId(Integer msgId)
+	{
+		this.setMsgId(msgId);
+	}
+
 	
 	@JsonProperty("attr")
 	private void unpackNameFromNestedObject(Map<String, Object> attr) 

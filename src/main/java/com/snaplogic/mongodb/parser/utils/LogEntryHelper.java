@@ -35,48 +35,19 @@ public class LogEntryHelper {
 	 * @return String the unique id for this record.
 	 * @throws MongoDbLogParserException in the event we are unable to produce a UUID from the supplied data.
 	 */
-	public static String generateId(Date logEntryDate, String env, String node, String machine) throws MongoDbLogParserException
+	public static String generateId(LogEntry logEntry) 
 	{
-		Objects.requireNonNull(logEntryDate, "Log Entry date is required to generate a uuid!");
-		Objects.requireNonNull(env, "The environment is required to generate a uuid!");
-		Objects.requireNonNull(node, "The MongoDB node is required to generate a uuid!");
-		Objects.requireNonNull(machine, "The MongoDB machine is required to generate a uuid!");
-
-		try 
-		{
-			MessageDigest md = MessageDigest.getInstance("SHA-256");
-
-			md.update(logEntryDate.toString().getBytes(StandardCharsets.UTF_8));
-			md.update(env.getBytes(StandardCharsets.UTF_8));
-			md.update(node.getBytes(StandardCharsets.UTF_8));
-			md.update(machine.getBytes(StandardCharsets.UTF_8));
+		byte [] uuidBytes = concat (DateUtils.toString(logEntry.getLogEntryDate()).getBytes(StandardCharsets.UTF_8),
+				logEntry.getMsgId().toString().getBytes(StandardCharsets.UTF_8),
+				logEntry.getQueryHash().getBytes(StandardCharsets.UTF_8),
+				logEntry.getRemote().getBytes(StandardCharsets.UTF_8),
+				logEntry.getEnv().getBytes(StandardCharsets.UTF_8),
+				logEntry.getNode().getBytes(StandardCharsets.UTF_8),
+				logEntry.getMachine().getBytes(StandardCharsets.UTF_8));
 			
-			byte[] digest = md.digest();
+		UUID uuid = UUID.nameUUIDFromBytes(uuidBytes);
 
-			// Convert the first 16 bytes of the digest to a UUID
-			long mostSigBits = 0;
-			long leastSigBits = 0;
-			
-			for (int i = 0; i < 8; i++)
-				mostSigBits = (mostSigBits << 8) | (digest[i] & 0xff);
-         
-			for (int i = 8; i < 16; i++)
-				leastSigBits = (leastSigBits << 8) | (digest[i] & 0xff);
-			
-			UUID uuid = new UUID(mostSigBits, leastSigBits);
-			return (uuid.toString());
-
-        } 
-		catch (NoSuchAlgorithmException e) 
-		{
-			logger.error("An error occurred while attempting to generate the UUID from the supplied data: \n" +
-					"	LogEntryDate: " + DateUtils.toString(logEntryDate) + "\n" +
-					"	env: " + env + "\n" +
-					"	node: " + node + "\n" +
-					"	machine: " + machine + "\n");
-			
-			throw new MongoDbLogParserException("Failed to generate UUID id", e);
-		}
+		return (uuid.toString()); 
 	}
 	
 	/**
@@ -100,5 +71,28 @@ public class LogEntryHelper {
 		if(i < parts.length)
 			return parts[++i];
 		return "";
+	}
+	
+	public static byte[] concat(byte[]...arrays)
+	{
+	    // Determine the length of the result array
+	    int totalLength = 0;
+	    for (int i = 0; i < arrays.length; i++)
+	    {
+	        totalLength += arrays[i].length;
+	    }
+
+	    // create the result array
+	    byte[] result = new byte[totalLength];
+
+	    // copy the source arrays into the result array
+	    int currentIndex = 0;
+	    for (int i = 0; i < arrays.length; i++)
+	    {
+	        System.arraycopy(arrays[i], 0, result, currentIndex, arrays[i].length);
+	        currentIndex += arrays[i].length;
+	    }
+
+	    return result;
 	}
 }
