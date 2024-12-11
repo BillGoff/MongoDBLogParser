@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snaplogic.mongodb.parser.dtos.LogEntry;
 import com.snaplogic.mongodb.parser.exceptions.MongoDbLogParserException;
 import com.snaplogic.mongodb.parser.repos.LogEntriesRepository;
+import com.snaplogic.mongodb.parser.utils.LogEntryHelper;
 
 /**
  * This class is used to read the log file. It produces a Map with the unique
@@ -46,12 +47,14 @@ public class LogFileReader {
 	 * @return List of all the LogEntries (queries/inserts/updates) pulled from the log file.
 	 * @throws MongoDbLogParserException if we run into an issue parsing the log file.
 	 */
-	public void parseLogFile(CommandLine cli, String option, String machine, String env, String node)
+	public int parseLogFile(CommandLine cli, String option, String machine, String env, String node)
 			throws MongoDbLogParserException 
 	{
-		
 		List<LogEntry> logEntries = new ArrayList<LogEntry>();
+		List<LogEntry> savedLogEntries = new ArrayList<LogEntry>();
 		int counter = 0;
+		
+		int lineCount = 0;
 		
 		File logFile = getFile(cli, option);
 				
@@ -74,26 +77,47 @@ public class LogFileReader {
 								logEntry.setMachine(machine);
 								logEntry.setEnv(env);
 								logEntry.setNode(node);
+								logEntry.setId(LogEntryHelper.generateId(logEntry.getLogEntryDate(), env, node, machine));
 								logEntries.add(logEntry);
 							}
+							else
+								logger.warn("We are not going to save LogEntry:\n" + logEntry.toString("	"));
 						}
 						if(logEntries.size() == 10)
 						{
-							logEntriesRepo.saveAll(logEntries);
-							counter = counter + logEntries.size();
-							logEntries = new ArrayList<LogEntry>();
+							try
+							{
+								savedLogEntries = logEntriesRepo.insert(logEntries);
+								counter = counter + savedLogEntries.size();
+								logEntries = new ArrayList<LogEntry>();
+							}
+							catch(Exception e)
+							{
+								logger.warn("Issue while doing bulk inserts", e);
+							}
 						}
 					}
 					catch(Exception e)
 					{
 						logger.error("Failed to parse line: " + line, e);
 					}
+					if (lineCount % 1000 == 0) {
+						System.out.print(".");
+					}
+					lineCount++;
 				}
 				//Don't forget to save the last entries.
 				if(logEntries.size() > 0)
 				{
-					logEntriesRepo.saveAll(logEntries);
-					counter = counter + logEntries.size();
+					try
+					{
+						savedLogEntries = logEntriesRepo.insert(logEntries);
+						counter = counter + logEntries.size();
+					}
+					catch(Exception e)
+					{
+						logger.warn("Issue while doing bulk inserts", e);
+					}
 				}
 			}
 		} 
@@ -104,9 +128,11 @@ public class LogFileReader {
 		}
 		finally
 		{
+			System.out.println("\nWe have just added " + counter + " log entries to the database.");
 			if(logger.isInfoEnabled())
 				logger.info("We have just added " + counter + " log entries to the database.");
 		}
+		return counter;
 	}
 	
 	/**

@@ -48,6 +48,7 @@ public class MongoDbLogParserApplication implements CommandLineRunner
 	@Override
 	public void run(String... args) 
 	{
+		int logEntriesInserted = 0;
 		LogFileReader logreader = new LogFileReader(logEntriesRepo);
 
 		Date startDate = DateUtils.rightNowDate();
@@ -75,9 +76,8 @@ public class MongoDbLogParserApplication implements CommandLineRunner
 				String machine = cli.getOptionValue("machine");
 				String node = cli.getOptionValue("node");
 				
-				
 				System.out.println("processing " + machine + " mongodb log file (" + fileName + ")");
-				logreader.parseLogFile(cli, "file", machine, env, node);
+				logEntriesInserted = logreader.parseLogFile(cli, "file", machine, env, node);
 			}
 		} 
 		catch (Exception e) 
@@ -93,14 +93,12 @@ public class MongoDbLogParserApplication implements CommandLineRunner
 				StringBuilder msg = new StringBuilder(
 						"It took " + DateUtils.computeDiff(startDate, DateUtils.rightNowDate()));
 				if (failed)
-					msg.append(" to fail, ");
+					msg.append(" to fail.");
 				else
-					msg.append(" to successfully, ");
+					msg.append(" to successfully, insert " + logEntriesInserted + " into the database.");
 
 				if (runningHelp)
 					msg.append("to show the usage.");
-				else
-					msg.append("to analyze a log file.");
 				logger.info(msg.toString());
 			}
 		}

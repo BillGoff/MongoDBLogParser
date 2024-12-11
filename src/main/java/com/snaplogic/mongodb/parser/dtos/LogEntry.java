@@ -3,37 +3,32 @@ package com.snaplogic.mongodb.parser.dtos;
 import java.util.Date;
 import java.util.Map;
 
+import org.bson.types.ObjectId;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.snaplogic.mongodb.parser.utils.DateUtils;
+import com.snaplogic.mongodb.parser.utils.LogEntryHelper;
 import com.snaplogic.mongodb.parser.utils.StringUtils;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LogEntry {
 	
-	@JsonProperty("c")
-	private String operation;
-	
-	public String getOperation() {
-		return operation;
-	}
-
-	public void setOperation(String operation) {
-		this.operation = operation;
-	}
-
 	private String cmd;
-
-	private String collection;
 	
+	private String collection;
+
 	private Integer docsExamined = Integer.valueOf(0);
 
 	private Integer duration = Integer.valueOf(0);
-
+	
 	private String env;
 
 	private String errMsg;
+
+	@JsonProperty("_id")
+	private String id;
 
 	private Integer keysExamined = Integer.valueOf(0);
 	
@@ -44,29 +39,32 @@ public class LogEntry {
 
 	@JsonProperty("msg")
 	private String msg;
-	
-    private String node;
-	
-    private Integer nreturned = Integer.valueOf(0);
 
-    private Integer numYelds = Integer.valueOf(0);
-    
+	private String node;
+
+	private Integer nreturned = Integer.valueOf(0);
+	
+	private Integer numYelds = Integer.valueOf(0);
+
+	@JsonProperty("c")
+	private String operation;
+
 	private String planCacheKey;
-
-	private Integer planningTimeMicros = Integer.valueOf(0);
-
-	private String planSummary;
-
-	private String queryHash;
 	
+    private Integer planningTimeMicros = Integer.valueOf(0);
+	
+    private String planSummary;
+
+    private String queryHash;
+    
 	private String readPreference;
-	
+
 	private String remote;
 
 	private String replanReason;
 
 	private Integer reslen = Integer.valueOf(0);
-
+	
 	public String getCmd() {
 		return cmd;
 	}
@@ -82,27 +80,31 @@ public class LogEntry {
 	public Integer getDuration() {
 		return duration;
 	}
-	
+
 	public String getEnv() {
 		return env;
 	}
-    
-    public String getErrMsg() {
+	
+	public String getErrMsg() {
 		if(errMsg != null)
 			return errMsg;
 		else 
 			return "";
 	}
 
+	public String getId() {
+		return id;
+	}
+
 	public int getKeysExamined() {
 		return keysExamined;
 	}
-
+	
 	public Date getLogEntryDate() {
 		return logEntryDate;
 	}
-	
-	public String getMachine() {
+    
+    public String getMachine() {
 		return machine;
 	}
 
@@ -113,23 +115,27 @@ public class LogEntry {
 	public String getNode() {
 		return node;
 	}
-
+	
 	public Integer getNreturned() {
 		return nreturned;
 	}
-	
+
 	public Integer getNumYelds() {
 		return numYelds;
 	}
-	
+
+	public String getOperation() {
+		return operation;
+	}
+
 	public String getPlanCacheKey() {
 		return planCacheKey;
 	}
-
+	
 	public Integer getPlanningTimeMicros() {
 		return planningTimeMicros;
 	}
-
+	
 	public String getPlanSummary() {
 		return planSummary;
 	}
@@ -170,19 +176,19 @@ public class LogEntry {
 			System.out.println(e.getMessage());
 		}
 	}
-	
+
 	public void setCmd(String cmd) {
 		this.cmd = cmd;
 	}
-	
+
 	public void setCollection(String collection) {
 		this.collection = collection;
 	}
-
+	
 	public void setDocsExamined(Integer docsExamined) {
 		this.docsExamined = docsExamined;
 	}
-
+	
 	public void setDuration(Integer duration) {
 		this.duration = duration;
 	}
@@ -195,6 +201,10 @@ public class LogEntry {
 		this.errMsg = errMsg;
 	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	public void setKeysExamined(int keysExamined) {
 		this.keysExamined = keysExamined;
 	}
@@ -202,14 +212,14 @@ public class LogEntry {
 	public void setLogEntryDate(Date logEntryDate) {
 		this.logEntryDate = logEntryDate;
 	}
+
 	public void setMachine(String machine) {
 		this.machine = machine;
 	}
-    
 	public void setMsg(String msg) {
 		this.msg = msg;
 	}
-
+    
 	public void setNode(String node) {
 		this.node = node;
 	}
@@ -220,6 +230,10 @@ public class LogEntry {
 
 	public void setNumYelds(Integer numYelds) {
 		this.numYelds = numYelds;
+	}
+
+	public void setOperation(String operation) {
+		this.operation = operation;
 	}
 
 	public void setPlanCacheKey(String planCacheKey) {
@@ -294,6 +308,7 @@ public class LogEntry {
 	{
 		StringBuilder sb = new StringBuilder();
 
+		sb.append(tabs + "collection: "     + getCollection()   + "\n");
 		sb.append(tabs + "keysExamined: "   + getKeysExamined() + "\n");
 		sb.append(tabs + "docsExamined: "   + getDocsExamined() + "\n");
 		sb.append(tabs + "queryHash: "      + getQueryHash()    + "\n");
@@ -308,11 +323,11 @@ public class LogEntry {
 	}
 	
 	@JsonProperty("attr")
-	private void unpackNameFromNestedObject(Map<String, Object> attr) {
+	private void unpackNameFromNestedObject(Map<String, Object> attr) 
+	{
 		try
 		{
 			Object temp = attr.get("command");
-			
 			if(temp != null)
 			{
 				this.setCmd(temp.toString());
@@ -330,6 +345,12 @@ public class LogEntry {
 				}
 			}
 			
+			temp = attr.get("cmd");
+			if(temp != null)
+			{
+				this.setCmd(temp.toString());
+			}
+			
 			temp = attr.get("docsExamined");
 			if ((temp != null) && (temp instanceof Integer))
 				this.setDocsExamined((Integer) temp);
@@ -337,6 +358,25 @@ public class LogEntry {
 			temp = attr.get("durationMillis");
 			if ((temp != null) && (temp instanceof Integer))
 				this.setDuration((Integer) temp);
+			
+			temp = attr.get("error");
+			if(temp instanceof Map)
+			{
+				@SuppressWarnings("rawtypes")
+				Object errmsg = ((Map) temp).get("errmsg");
+				if((errmsg != null) && (errmsg instanceof String))
+				{
+					this.setErrMsg((String) errmsg);
+					this.setCollection(LogEntryHelper.parseCollectionFromError((String) errmsg));
+				}
+				
+				@SuppressWarnings("rawtypes")
+				Object errorCode = ((Map) temp).get("code");
+				if((errorCode != null) && (errorCode instanceof Integer))
+				{
+					this.setQueryHash("E" + ((Integer) errorCode).toString());
+				}
+			}
 			
 			temp = attr.get("errMsg");
 			if ((temp != null) && (temp instanceof String))
