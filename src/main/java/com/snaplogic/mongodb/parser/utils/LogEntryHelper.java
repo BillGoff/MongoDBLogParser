@@ -28,12 +28,9 @@ public class LogEntryHelper {
 	/**
 	 * This method is used to generate the MongoDB _id field.  This field must be unique.  I also wanted it to be 
 	 * reproducible, to make sure the same records are not loaded multiple times.
-	 * @param logEntryDate Date of the log entry.
-	 * @param env String value of the environment.  Typically prod, canary, uat, ...
-	 * @param node String value of the MongoDB cluster node.  Typically something like shard01
-	 * @param machine String value of the actual MongoDB machine.  if the node is shard01, this would be something like shard01_01
+	 * @param logEntry LogEntry used to get the information necessary to generate the Id that will act as the unique 
+	 * value for the LogEntry passed in.
 	 * @return String the unique id for this record.
-	 * @throws MongoDbLogParserException in the event we are unable to produce a UUID from the supplied data.
 	 */
 	public static String generateId(LogEntry logEntry) 
 	{
@@ -73,6 +70,12 @@ public class LogEntryHelper {
 		return "";
 	}
 	
+	/**
+	 * Helper method used to get the bytes for the string passed in.  In the event of a null string it will return 
+	 * an empty byte array.
+	 * @param str String to get the bytes for.
+	 * @return byte [] representation of the string passed in.
+	 */
 	private static byte [] getBytes(String str)
 	{
 		if(str != null)
@@ -81,7 +84,12 @@ public class LogEntryHelper {
 			return (new byte[0]);
 	}
 	
-	public static byte[] concat(byte[]...arrays)
+	/**
+	 * Helper method used to concatenate all the byte arrays together into a single byte array.
+	 * @param arrays 
+	 * @return byte array 
+	 */
+	private static byte[] concat(byte[]...arrays)
 	{
 	    // Determine the length of the result array
 	    int totalLength = 0;

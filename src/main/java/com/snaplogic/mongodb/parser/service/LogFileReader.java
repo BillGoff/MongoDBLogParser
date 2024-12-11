@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snaplogic.mongodb.parser.dtos.LogEntry;
 import com.snaplogic.mongodb.parser.exceptions.MongoDbLogParserException;
 import com.snaplogic.mongodb.parser.repos.LogEntriesRepository;
-import com.snaplogic.mongodb.parser.utils.DateUtils;
 import com.snaplogic.mongodb.parser.utils.LogEntryHelper;
 
 /**
@@ -52,8 +50,8 @@ public class LogFileReader {
 	public int parseLogFile(CommandLine cli, String option, String machine, String env, String node)
 			throws MongoDbLogParserException 
 	{
-		List<LogEntry> logEntries = new ArrayList<LogEntry>();
-		List<LogEntry> savedLogEntries = new ArrayList<LogEntry>();
+//		List<LogEntry> logEntries = new ArrayList<LogEntry>();
+//		List<LogEntry> savedLogEntries = new ArrayList<LogEntry>();
 		int counter = 0;
 		
 		int lineCount = 0;

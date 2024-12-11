@@ -10,6 +10,11 @@ import com.snaplogic.mongodb.parser.utils.LogEntryHelper;
 import com.snaplogic.mongodb.parser.utils.StringUtils;
 
 
+/**
+ * Data Transfer Object (DTO) used to hold a log entry.
+ * @author bgoff
+ * @since 11 Dec 2024
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LogEntry {
 	
