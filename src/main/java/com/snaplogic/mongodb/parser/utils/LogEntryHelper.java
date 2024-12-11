@@ -37,13 +37,13 @@ public class LogEntryHelper {
 	 */
 	public static String generateId(LogEntry logEntry) 
 	{
-		byte [] uuidBytes = concat (DateUtils.toString(logEntry.getLogEntryDate()).getBytes(StandardCharsets.UTF_8),
-				logEntry.getMsgId().toString().getBytes(StandardCharsets.UTF_8),
-				logEntry.getQueryHash().getBytes(StandardCharsets.UTF_8),
-				logEntry.getRemote().getBytes(StandardCharsets.UTF_8),
-				logEntry.getEnv().getBytes(StandardCharsets.UTF_8),
-				logEntry.getNode().getBytes(StandardCharsets.UTF_8),
-				logEntry.getMachine().getBytes(StandardCharsets.UTF_8));
+		byte [] uuidBytes = concat (getBytes(DateUtils.toString(logEntry.getLogEntryDate())),
+				getBytes(logEntry.getMsgId().toString()),
+				getBytes(logEntry.getQueryHash()),
+				getBytes(logEntry.getRemote()),
+				getBytes(logEntry.getEnv()),
+				getBytes(logEntry.getNode()),
+				getBytes(logEntry.getMachine()));
 			
 		UUID uuid = UUID.nameUUIDFromBytes(uuidBytes);
 
@@ -71,6 +71,14 @@ public class LogEntryHelper {
 		if(i < parts.length)
 			return parts[++i];
 		return "";
+	}
+	
+	private static byte [] getBytes(String str)
+	{
+		if(str != null)
+			return(str.getBytes(StandardCharsets.UTF_8));
+		else 
+			return (new byte[0]);
 	}
 	
 	public static byte[] concat(byte[]...arrays)

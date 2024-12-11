@@ -3,8 +3,6 @@ package com.snaplogic.mongodb.parser.dtos;
 import java.util.Date;
 import java.util.Map;
 
-import org.bson.types.ObjectId;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.snaplogic.mongodb.parser.utils.DateUtils;

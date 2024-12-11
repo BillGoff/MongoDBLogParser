@@ -1,5 +1,7 @@
 package com.snaplogic.mongodb.parser.utils;
 
+import com.snaplogic.mongodb.parser.dtos.LogEntry;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -47,92 +49,39 @@ class LogEntryHelperTest {
 	 * Mongo Database.
 	 */
 	@Test
-//	void testGenerateid()
-//	{
-//		String expectedUuid = "50a15c86-ee78-8f8f-f8c6-2f501279d87a";
-//		
-//		String logFileDateString = "2024-12-05T03:09:54.734+00:00";
-//
-//		String env = "prod";
-//		String node = "shard01";
-//		String machine = "shard01_01";
-//		
-//		try
-//		{
-//			String dateString  = "2024-12-04T22:09:54.734+00:00";
-//			String dateString2 = "2024-12-04T22:09:54.994+00:00";
-//			
-//			Date date1 = DateUtils.toDate(dateString);
-//			Date date2 = DateUtils.toDate(dateString2);
-//			
-//			System.out.println(DateUtils.toString(date1));
-//			System.out.println(DateUtils.toString(date2));
-//			
-//			byte [] uuid1Bytes = concat (DateUtils.toString(date1).getBytes(StandardCharsets.UTF_8), 
-//					env.getBytes(StandardCharsets.UTF_8),
-//					node.getBytes(StandardCharsets.UTF_8),
-//					machine.getBytes(StandardCharsets.UTF_8));
-//			
-//			UUID uuid1 = UUID.nameUUIDFromBytes(uuid1Bytes);
-//			
-//			byte [] uuid2Bytes = concat (DateUtils.toString(date2).getBytes(StandardCharsets.UTF_8), 
-//					env.getBytes(StandardCharsets.UTF_8),
-//					node.getBytes(StandardCharsets.UTF_8),
-//					machine.getBytes(StandardCharsets.UTF_8));
-//			
-//			UUID uuid2 = UUID.nameUUIDFromBytes(uuid2Bytes);
-//
-//			System.out.println(uuid1.toString());
-//			System.out.println(uuid2.toString());
-//			
-//			if(uuid1.equals(uuid2))
-//				System.out.println("Nope");
-//
-//			
-//
-//			Date logEntryDate = DateUtils.toDate(logFileDateString);
-//			
-//			String actualUuid = LogEntryHelper.generateId(logEntryDate, env, node, machine);
-//						
-//			if(expectedUuid.equalsIgnoreCase(actualUuid))
-//				System.out.println("We generated the expected UUID(" + expectedUuid + ")");
-//			else
-//			{	
-//				StringBuilder sb = new StringBuilder("Did NOT generagte the expected UUID!\n");
-//				sb.append("	expected: " + expectedUuid + "\n");
-//				sb.append("	But got:  " + actualUuid + "\n");
-//				System.out.println(sb.toString());
-//			}
-//			assertTrue(expectedUuid.equalsIgnoreCase(actualUuid));
-//		}
-//		catch (Exception e)
-//		{
-//			e.printStackTrace();
-//			fail("Failed to correctly generate the UUID!");
-//		}
-//	}
-	
-	public byte[] concat(byte[]...arrays)
+	void testGenerateid()
 	{
-	    // Determine the length of the result array
-	    int totalLength = 0;
-	    for (int i = 0; i < arrays.length; i++)
-	    {
-	        totalLength += arrays[i].length;
-	    }
-
-	    // create the result array
-	    byte[] result = new byte[totalLength];
-
-	    // copy the source arrays into the result array
-	    int currentIndex = 0;
-	    for (int i = 0; i < arrays.length; i++)
-	    {
-	        System.arraycopy(arrays[i], 0, result, currentIndex, arrays[i].length);
-	        currentIndex += arrays[i].length;
-	    }
-
-	    return result;
+		String expectedUuid = "41ef5c97-c4f4-3107-9f25-e21499e7e0be";
+		
+		try
+		{
+			LogEntry le = new LogEntry();
+			
+			le.setLogEntryDate(DateUtils.toDate("2024-12-05T03:09:54.734+00:00"));
+			le.setEnv("prod");
+			le.setNode("shard01");
+			le.setMachine("shard01_01");
+			le.setMsgId(51803);
+			le.setQueryHash("91319006");
+			le.setRemote("172.29.40.150:41358");
+			
+			String actualUuid = LogEntryHelper.generateId(le);
+						
+			if(expectedUuid.equalsIgnoreCase(actualUuid))
+				System.out.println("We generated the expected UUID(" + expectedUuid + ")");
+			else
+			{	
+				StringBuilder sb = new StringBuilder("Did NOT generagte the expected UUID!\n");
+				sb.append("	expected: " + expectedUuid + "\n");
+				sb.append("	But got:  " + actualUuid + "\n");
+				System.out.println(sb.toString());
+			}
+			assertTrue(expectedUuid.equalsIgnoreCase(actualUuid));
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			fail("Failed to correctly generate the UUID!");
+		}
 	}
-
 }
